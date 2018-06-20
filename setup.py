@@ -18,5 +18,6 @@ setup(
         "pycrypto",
         "multidict",
         "requests",
+        "rsa",
     ],
 )
