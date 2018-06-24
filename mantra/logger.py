@@ -2,7 +2,7 @@ import logging
 
 from colorlog import ColoredFormatter
 
-
+LOGGER = {}
 LOG_LEVEL = logging.DEBUG
 LOGFORMAT = (
     "[%(log_color)s%(levelname)s%(reset)s] "
@@ -10,13 +10,21 @@ LOGFORMAT = (
 )
 
 
-def get_logger(name, level=LOG_LEVEL, log_format=LOGFORMAT):
-    logging.root.setLevel(level)
-    formatter = ColoredFormatter(log_format)
-    stream = logging.StreamHandler()
-    stream.setLevel(level)
-    stream.setFormatter(formatter)
-    log = logging.getLogger(name)
-    log.setLevel(level)
-    log.addHandler(stream)
-    return log
+def get_logger(name):
+    """Returns specific logger instance."""
+    try:
+        return LOGGER[name]
+    except KeyError:
+        logging.root.setLevel(LOG_LEVEL)
+        formatter = ColoredFormatter(LOGFORMAT)
+        stream = logging.StreamHandler()
+        stream.setLevel(LOG_LEVEL)
+        stream.setFormatter(formatter)
+        log = logging.getLogger(name)
+        log.setLevel(LOG_LEVEL)
+        log.addHandler(stream)
+
+        # Store the logger to avoid duplicate handler which causing duplicate
+        # message and return it later when same logger is asked.
+        LOGGER[name] = log
+        return log

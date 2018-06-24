@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from urllib.parse import urlparse
-from apyio import BytesIO as AsyncBytesIO
 from thrift.transport.TTransport import TTransportBase
 
 

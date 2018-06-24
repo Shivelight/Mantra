@@ -56,7 +56,7 @@ class JunglePang(object):
         url = f"{JP_URL}/lcs/sendMessage"
         result = await self.mantra.session.post(url, json=data)
         res = await result.json()
-        if res['status'] != "ok":
+        if res.get('status') != "ok":
             raise Exception("Failed to send message.")
 
 
