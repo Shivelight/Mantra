@@ -17,6 +17,7 @@ from .service import (  # noqa
     SquareService,
     TalkService,
 )
+from . import patch # noqa
 
 
 def auth(url, session, protocol='binary'):
@@ -84,6 +85,7 @@ def talk(url, session, protocol='binary'):
     transport = TAsyncioHttpClient(url, session)
     if protocol == "binary":
         client = TalkService.Client(TAsyncioBinaryProtocol(transport))
+        patch.binary.talk(client)
     elif protocol == "compact":
         client = TalkService.Client(TAsyncioCompactProtocol(transport))
     client.trans = transport
