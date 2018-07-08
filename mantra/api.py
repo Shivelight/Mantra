@@ -275,7 +275,7 @@ class LineApi(object):
         await self.sendVideo(to, result)
 
     async def sendText(self, mid, text):
-        return await self.Talk.sendText(mid, text)
+        return await self.Talk.sendMessage(0, Message(to=mid, text=text))
 
     async def sendProfileCover(self, to, mid):
         url = await self.Timeline.getProfileCoverURL(mid)

@@ -11932,7 +11932,7 @@ class Message(object):
         (17, TType.STRING, 'contentPreview', 'BINARY', None, ),  # 17
         (18, TType.MAP, 'contentMetadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 18
         (19, TType.BYTE, 'sessionId', None, None, ),  # 19
-        (20, TType.LIST, 'chunks', (TType.STRING, 'UTF8', False), None, ),  # 20
+        (20, TType.LIST, 'chunks', (TType.STRING, 'BINARY', False), None, ),  # 20
         (21, TType.STRING, 'relatedMessageId', 'UTF8', None, ),  # 21
         (22, TType.I32, 'messageRelationType', None, None, ),  # 22
         (23, TType.I32, 'readCount', None, None, ),  # 23
@@ -12045,7 +12045,7 @@ class Message(object):
                     self.chunks = []
                     (_etype249, _size246) = await iprot.readListBegin()
                     for _i250 in range(_size246):
-                        _elem251 = await iprot.readString()
+                        _elem251 = await iprot.readBinary()
                         self.chunks.append(_elem251)
                     await iprot.readListEnd()
                 else:
@@ -12140,7 +12140,7 @@ class Message(object):
             oprot.writeFieldBegin('chunks', TType.LIST, 20)
             oprot.writeListBegin(TType.STRING, len(self.chunks))
             for iter254 in self.chunks:
-                oprot.writeString(iter254)
+                oprot.writeBinary(iter254)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.relatedMessageId is not None:

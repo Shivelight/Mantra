@@ -13,6 +13,7 @@ from .service import (  # noqa
     ChannelService,
     ChatappService,
     LiffService,
+    PollService,
     ShopService,
     SquareService,
     TalkService,
@@ -60,6 +61,17 @@ def chatapp(url, session):
 def liff(url, session):
     transport = TAsyncioHttpClient(url, session)
     client = LiffService.Client(TAsyncioCompactProtocol(transport))
+    client.trans = transport
+    return client
+
+
+def poll(url, session, protocol='binary'):
+    transport = TAsyncioHttpClient(url, session)
+    if protocol == "binary":
+        client = PollService.Client(TAsyncioBinaryProtocol(transport))
+    elif protocol == "compact":
+        client = PollService.Client(TAsyncioCompactProtocol(transport))
+    patch.transport.poll(transport, protocol)
     client.trans = transport
     return client
 

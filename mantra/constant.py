@@ -49,12 +49,15 @@ SERVICE = {
         "BUDDY": "/BUDDY3",
         "CALL": "/V3",
         "CHANNEL": "/CH3",
+        "E3": "/E3",
+        "H3": "/H3",
         "LONG_POLLING": "/P3",
         "NORMAL": "/S3",
+        "NORMAL_POLLING": "/NP3",
         "NOTIFY_SLEEP": "/F3",
         "REGISTRATION": "/api/v3/TalkService.do",
         "SHOP": "/SHOP3",
-        "SNS_ADAPTER": "/SA3"
+        "SNS_ADAPTER": "/SA3",
     },
     "compact": {
         "AGE_CHECK": "/ACS4",
@@ -72,8 +75,10 @@ SERVICE = {
         "COIN": "/COIN4",
         "COMPACT_MESSAGE": "/C5",
         "CONN_INFO": "/R2",
+        "E4": "/E4",
         "EXTERNAL_INTERLOCK": "/EIS4",
         "EXTERNAL_PROXY": "",
+        "H4": "/H4",
         "HTTP_PROXY": "",
         "LIFF": "/LIFF1",
         "LONG_POLLING": "/P4",
@@ -171,4 +176,9 @@ APP = {
         "LineApplication": "DESKTOPWIN\t5.6.0.1625\tWINDOWS\t10.0.1709-WIN10-x64"
         # https://line.en.softonic.com/
     }
+}
+
+CHANNEL = {
+    "LINEAT": "1417913499",
+    "LINEAT_CMS": "1418234097",
 }

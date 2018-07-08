@@ -12,6 +12,7 @@ setup(
         "ujson",
         "colorlog",
         "uvloop",
+        "aiodns",
         "aiohttp",
         "dataset",
         "thrift",

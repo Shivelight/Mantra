@@ -228,28 +228,7 @@ class Timeline(object):
     # TODO
     async def getImageGroupAlbum(self, mid, albumId, objId, returnAs='path',
                                  saveAs=''):
-        if saveAs == '':
-            saveAs = self.genTempFile('path')
-        if returnAs not in ['path', 'bool', 'bin']:
-            raise Exception('Invalid returnAs value')
-        hr = self.server.additionalHeaders(self.server.timelineHeaders, {
-            'Content-Type': 'image/jpeg',
-            'X-Line-Mid': mid,
-            'X-Line-Album': albumId
-        })
-        params = {'ver': '1.0', 'oid': objId}
-        url = self.server.urlEncode(self.server.LINE_OBS_DOMAIN, '/album/a/download.nhn', params)
-        r = self.server.getContent(url, headers=hr)
-        if r.status_code == 200:
-            self.saveFile(saveAs, r.raw)
-            if returnAs == 'path':
-                return saveAs
-            elif returnAs == 'bool':
-                return True
-            elif returnAs == 'bin':
-                return r.raw
-        else:
-            raise Exception('Download image album failure.')
+        pass
 
     async def getProfileCoverId(self, mid):
         profile = await self.getProfileDetail(mid)
