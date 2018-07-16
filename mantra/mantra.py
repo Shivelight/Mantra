@@ -15,6 +15,7 @@ from . import client, util
 from .lib.aiohttp import ClientSession
 from .constant import SERVICE, LEGY, APP, OBS, VERIFICATION_PATH
 from .api import LineApi
+from .crypto import conn_info
 from .service.ttypes import (
     IdentityProvider,
     LoginResultType,
@@ -35,11 +36,12 @@ class Mantra(LineApi):
     OBS = None
     LEGY = None
 
-    def __init__(self, loop=None, session=None, geo="JP"):
+    def __init__(self, loop=None, session=None, geo="JP", legy=True, legy_proxy=None):
         self.loop = loop or new_event_loop()
         self.session = None
         self.protocol = None
         self.logged_in = False
+        self.legy = legy
 
         self.mid = None
         self._setting = {
@@ -63,6 +65,7 @@ class Mantra(LineApi):
             self.session = ClientSession(
                 loop=self.loop, connector=tcp, skip_auto_headers=skip_headers
             )
+            self.session.legy_proxy = legy_proxy
         else:
             self.session = session
 
@@ -125,7 +128,7 @@ class Mantra(LineApi):
         url = ("https://" if ssl else "http://") + self.LEGY
 
         self.Auth = client.auth(
-            url + SERVICE[protocol]["REGISTRATION"], self.session, protocol
+            url + SERVICE[protocol]["REGISTRATION"], self.session, protocol, self.legy
         )
 
         self.session._headers.update(
@@ -173,19 +176,35 @@ class Mantra(LineApi):
             pollpath = "LONG_POLLING"
 
         self.Talk = client.talk(
-            url + SERVICE[protocol][talkpath], self.session, protocol
+            url + SERVICE[protocol][talkpath], self.session, protocol, self.legy
         )
 
         self.Poll = client.poll(
-            url + SERVICE[protocol][pollpath], self.session, protocol
+            url + SERVICE[protocol][pollpath], self.session, protocol, self.legy
         )
         # self.Poll.trans.updateCustomHeaders({"Connection": "close"})
 
         self.Channel = client.channel(
-            url + SERVICE[protocol]["CHANNEL"], self.session, protocol
+            url + SERVICE[protocol]["CHANNEL"], self.session, protocol, self.legy
         )
-        self.Call = client.call(url + SERVICE[protocol]["CALL"], self.session, protocol)
-        self.Liff = client.liff(url + SERVICE["compact"]["LIFF"], self.session)
+        self.Call = client.call(
+            url + SERVICE[protocol]["CALL"], self.session, protocol, self.legy
+        )
+        self.Liff = client.liff(
+            url + SERVICE["compact"]["LIFF"], self.session, self.legy
+        )
+
+        # random_key = secrets.token_bytes(16)
+        # lcs = conn_info.generate_lcs(random_key)
+        # params = conn_info.generate_params('iPhone_OS', '8.8.0')
+        # headers = {
+        #     "Cookie": "os=ios",
+        #     "X-LCS": lcs,
+        #     "X-Line-Access": self.authToken
+        # }
+        # conn = await self.session.get(f"{url}/R3", params=params, headers=headers)
+        # if conn.status != 302:
+        #     raise Exception("CONN_INFO failed.")
 
         self.mid = (await self.Talk.getProfile()).mid
 
@@ -217,9 +236,12 @@ class Mantra(LineApi):
 
         rsainfo = await self.Auth.getRSAKeyInfo(identityProvider)
         message = (
-            chr(len(rsainfo.sessionKey)) + rsainfo.sessionKey +
-            chr(len(identity)) + identity +
-            chr(len(password)) + password
+            chr(len(rsainfo.sessionKey))
+            + rsainfo.sessionKey
+            + chr(len(identity))
+            + identity
+            + chr(len(password))
+            + password
         ).encode("utf-8")
         publicKey = rsa.PublicKey(int(rsainfo.nvalue, 16), int(rsainfo.evalue, 16))
         crypto = rsa.encrypt(message, publicKey).hex()
@@ -262,8 +284,7 @@ class Mantra(LineApi):
             result = await result.json()
 
             loginRequest = LoginRequest(
-                LoginType.QRCODE,
-                verifier=result["result"]["verifier"],
+                LoginType.QRCODE, verifier=result["result"]["verifier"]
             )
             loginResult = await self.Auth.loginZ(loginRequest)
 
@@ -287,6 +308,8 @@ class Mantra(LineApi):
                 callback("line://au/q/" + qrCode.verifier)
 
         header = {
+            "Cookie": "os=ios",  # os=android
+            "User-Agent": APP[self.clientType]["UserAgent"],
             "X-Line-Application": APP[self.clientType]["LineApplication"],
             "X-Line-Access": qrCode.verifier,
         }
@@ -297,9 +320,7 @@ class Mantra(LineApi):
         self.Auth.trans.path = SERVICE[self.protocol]["AUTH_REGISTRATION"]
 
         loginRequest = LoginRequest(
-            type=LoginType.QRCODE,
-            identityProvider=IdentityProvider.LINE_PHONE,
-            verifier=result["result"]["verifier"],
+            type=LoginType.QRCODE, verifier=result["result"]["verifier"]
         )
         loginResult = await self.Auth.loginZ(loginRequest)
 

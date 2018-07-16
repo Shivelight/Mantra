@@ -6,7 +6,7 @@ from thrift.transport.TTransport import TTransportBase
 
 class TAsyncioHttpClient(TTransportBase):
 
-    def __init__(self, url, client):
+    def __init__(self, url, client, proxy=None):
 
         parsed = urlparse(url)
 
@@ -29,6 +29,10 @@ class TAsyncioHttpClient(TTransportBase):
         #             'Content-Type': 'application/x-thrift'}
         # except Exception:
         return {**self.headers, **self.custom_headers}
+
+    @property
+    def proxy(self):
+        return self.client.legy_proxy
 
     def close(self):
         self.client.close()
@@ -73,4 +77,4 @@ class TAsyncioHttpClient(TTransportBase):
         url = f"{self.scheme}{self.host}{self.path}"
         self._resp = await self.client.post(
             url, data=data, headers=self.getHeaders, ssl=False,
-            skip_auto_headers=self.skip_headers)
+            skip_auto_headers=self.skip_headers, proxy=self.proxy)
